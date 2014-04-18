@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using Xunit;
-using NCuid;
 
 namespace NCuid.Tests
 {
