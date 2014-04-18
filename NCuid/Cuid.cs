@@ -11,16 +11,9 @@ namespace Cuid
         private const int Base                       = 36;
         private static readonly ulong DiscreteValues = (ulong)Math.Pow(Base, BlockSize);
 
-        //private static string Pad(string num, int size)
-        //{
-        //    var s = "0000 0 0000" + num;
-        //    return s.Substring(s.Length - size);
-        //}
-
         private static string Pad(string num, int size)
         {
-            var s = "000000000" + num;
-            return s.Substring(s.Length-size);
+            return s.PadLeft(size, '0').Substring(s.Length-size);
         }
 
         private static string RandomBlock(Random rnd)
