@@ -1,25 +1,42 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
+using System.Security;
 
 namespace NCuid
 {
-    public class Cuid
+    public static class Cuid
     {
-        private static ulong _globalCounter;
         private const int BlockSize                  = 4;
         private const int Base                       = 36;
         private static readonly ulong DiscreteValues = (ulong)Math.Pow(Base, BlockSize);
 
-        private static string RandomBlock(Random rnd)
+        private static ulong _globalCounter;
+        private static string _hostname;
+
+        private static string Hostname
         {
-            var number = (long)(rnd.NextDouble() * DiscreteValues);
+            get
+            {
+                if (_hostname != null)
+                {
+                    return _hostname;
+                }
 
-            var r = number.ToBase36().Pad(BlockSize);
+                try
+                {
+                    _hostname = Environment.MachineName;
+                }
+                catch (SecurityException) // Fuck it
+                {
+                    _hostname = new Random().Next().ToString(CultureInfo.InvariantCulture);
+                }
 
-            return r;
+                return _hostname;
+            }
         }
-
+        
         public static string Generate()
         {
             var ts          = DateTime.Now.ToUnixMilliTime().ToBase36();
@@ -55,12 +72,21 @@ namespace NCuid
             const int padding = 2;
 
             var pid         = Base36Converter.ToBase36((Process.GetCurrentProcess().Id)).Pad(padding);
-            var hostname    = Environment.MachineName;
+            var hostname    = Hostname;
             var length      = hostname.Length;
             var inputNumber = hostname.Split().Aggregate(length + 36, (prev, c) => prev + c[0]);
 
             var hostId = Base36Converter.ToBase36(inputNumber).Pad(padding);
             return pid + hostId;
+        }
+
+        private static string RandomBlock(Random rnd)
+        {
+            var number = (long)(rnd.NextDouble() * DiscreteValues);
+
+            var r = number.ToBase36().Pad(BlockSize);
+
+            return r;
         }
     }
 }

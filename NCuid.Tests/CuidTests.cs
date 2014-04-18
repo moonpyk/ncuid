@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Xunit;
 
@@ -14,6 +15,21 @@ namespace NCuid.Tests
             Debug.WriteLine(cuid);
 
             Assert.Equal(cuid.Length, 25);
+        }
+
+        [Fact]
+        public void NoReasonableCollision()
+        {
+            const int capa = 60000;
+            var l = new List<string>(capa);
+
+            for (var i = 0; i <= capa; i++)
+            {
+                var gen = Cuid.Generate();
+                Assert.False(l.Contains(gen));
+
+                l.Add(gen);
+            }            
         }
 
         [Fact]
