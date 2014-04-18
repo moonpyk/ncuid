@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Cuid
+namespace NCuid
 {
     public static class DateTimeExtensions
     {

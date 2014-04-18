@@ -1,5 +1,6 @@
 ﻿using Xunit;
-namespace Cuid.Tests
+
+namespace NCuid.Tests
 {
     public class StringExtensionsTests
     {

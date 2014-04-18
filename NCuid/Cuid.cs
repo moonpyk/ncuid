@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 
-namespace Cuid
+namespace NCuid
 {
     public class Cuid
     {
@@ -11,26 +11,19 @@ namespace Cuid
         private const int Base                       = 36;
         private static readonly ulong DiscreteValues = (ulong)Math.Pow(Base, BlockSize);
 
-        private static string Pad(string num, int size)
-        {
-            return s.PadLeft(size, '0').Substring(s.Length-size);
-        }
-
         private static string RandomBlock(Random rnd)
         {
             var number = (long)(rnd.NextDouble() * DiscreteValues);
             number <<= 0;
 
-            var r = Pad(Base36Converter.Encode(number),
-                BlockSize
-            );
+            var r = number.ToBase36().Pad(BlockSize);
 
             return r;
         }
 
         public static string Generate()
         {
-            var ts          = Base36Converter.Encode(DateTime.Now.ToUnixMilliTime());
+            var ts          = DateTime.Now.ToUnixMilliTime().ToBase36();
             var gen         = new Random();
             var rnd         = RandomBlock(gen) + RandomBlock(gen);
             var fingerprint = FingerPrint();
@@ -39,7 +32,7 @@ namespace Cuid
                 ? _globalCounter 
                 : 0;
 
-            var counter = Pad(Base36Converter.Encode(_globalCounter), BlockSize);
+            var counter = _globalCounter.ToBase36().Pad(BlockSize);
 
             _globalCounter++;
 
@@ -50,12 +43,12 @@ namespace Cuid
         {
             const int padding = 2;
 
-            var pid         = Pad(Base36Converter.Encode((Process.GetCurrentProcess().Id)), padding);
+            var pid         = Base36Converter.ToBase36((Process.GetCurrentProcess().Id)).Pad(padding);
             var hostname    = Environment.MachineName;
             var length      = hostname.Length;
             var inputNumber = hostname.Split().Aggregate(length + 36, (prev, c) => prev + c[0]);
 
-            var hostId = Pad(Base36Converter.Encode(inputNumber), padding);
+            var hostId = Base36Converter.ToBase36(inputNumber).Pad(padding);
             return pid + hostId;
         }
     }

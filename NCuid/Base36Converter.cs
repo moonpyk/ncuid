@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace Cuid
+namespace NCuid
 {
     public static class Base36Converter
     {
@@ -30,6 +30,16 @@ namespace Cuid
                 pow++;
             }
             return result;
+        }
+
+        public static string ToBase36(this long inputNumber)
+        {
+            return Encode(inputNumber);
+        }
+
+        public static string ToBase36(this ulong inputNumber)
+        {
+            return Encode(inputNumber);
         }
 
         public static string Encode(long inputNumber)

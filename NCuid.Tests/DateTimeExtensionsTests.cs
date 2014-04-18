@@ -1,6 +1,7 @@
 ﻿using System;
 using Xunit;
-namespace Cuid.Tests
+
+namespace NCuid.Tests
 {
     public class DateTimeExtensionsTests
     {

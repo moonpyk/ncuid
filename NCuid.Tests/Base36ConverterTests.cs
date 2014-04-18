@@ -1,6 +1,6 @@
 ﻿using Xunit;
 
-namespace Cuid.Tests
+namespace NCuid.Tests
 {
     public class Base36ConverterTests
     {
@@ -15,7 +15,7 @@ namespace Cuid.Tests
         [Fact]
         public void EncodeTest()
         {
-            Assert.Equal("AQF8AA0006EH", Base36Converter.Encode(1412823931503067241));
+            Assert.Equal("AQF8AA0006EH", Base36Converter.ToBase36(1412823931503067241));
         }
     }
 }

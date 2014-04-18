@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Cuid
+namespace NCuid
 {
     public static class StringExtensions
     {
@@ -22,6 +22,12 @@ namespace Cuid
             var charArray = s.ToCharArray();
             Array.Reverse(charArray);
             return new string(charArray);
+        }
+
+        public static string Pad(this string s, int size)
+        {
+            var padded = s.PadLeft(size, '0');
+            return padded.Substring(padded.Length-size);
         }
     }
 }

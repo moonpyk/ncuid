@@ -2,21 +2,21 @@
 using System.Diagnostics;
 using Xunit;
 
-namespace Cuid.Tests
+namespace NCuid.Tests
 {
     public class CuidTests
     {
         [Fact]
         public void GenerateTest()
         {
-            Assert.Equal(Cuid.Generate().Length, 25);
+            Assert.Equal(NCuid.Cuid.Generate().Length, 25);
         }
 
         [Fact]
         public void CuidsAreShorterThanGuids()
         {
             Assert.True(
-                Guid.NewGuid().ToString().Replace("-", string.Empty).Length > Cuid.Generate().Length
+                Guid.NewGuid().ToString().Replace("-", string.Empty).Length > NCuid.Cuid.Generate().Length
             );
         }
 
@@ -30,7 +30,7 @@ namespace Cuid.Tests
             sw.Start();
             for (double i = 0; i < toGen; i++)
             {
-                Cuid.Generate();
+                NCuid.Cuid.Generate();
             }
             sw.Stop();
 
