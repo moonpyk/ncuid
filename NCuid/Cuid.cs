@@ -14,7 +14,6 @@ namespace NCuid
         private static string RandomBlock(Random rnd)
         {
             var number = (long)(rnd.NextDouble() * DiscreteValues);
-            number <<= 0;
 
             var r = number.ToBase36().Pad(BlockSize);
 
