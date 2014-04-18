@@ -39,6 +39,18 @@ namespace NCuid
             return ("c" + ts + counter + fingerprint + rnd).ToLowerInvariant();
         }
 
+        public static string Slug()
+        {
+            var dt      = DateTime.Now.ToUnixMilliTime().ToBase36();
+            var counter = _globalCounter.ToBase36().Slice(-1);
+            var print   = FingerPrint().Slice(0, 1) + FingerPrint().Slice(-1);
+            var rnd     = RandomBlock(new Random()).Slice(-1);
+
+            _globalCounter++;
+
+            return (dt.Slice(2, 4) + dt.Slice(-2) + counter + print + rnd).ToLowerInvariant();
+        }
+
         public static string FingerPrint()
         {
             const int padding = 2;

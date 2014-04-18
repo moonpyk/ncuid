@@ -15,7 +15,7 @@ namespace NCuid.Tests
         [Fact]
         public void EncodeTest()
         {
-            Assert.Equal("AQF8AA0006EH", Base36Converter.ToBase36(1412823931503067241));
+            Assert.Equal("AQF8AA0006EH", 1412823931503067241.ToBase36());
         }
     }
 }

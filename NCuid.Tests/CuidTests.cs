@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using Xunit;
+using NCuid;
 
 namespace NCuid.Tests
 {
@@ -9,14 +10,18 @@ namespace NCuid.Tests
         [Fact]
         public void GenerateTest()
         {
-            Assert.Equal(NCuid.Cuid.Generate().Length, 25);
+            var cuid = Cuid.Generate();
+
+            Debug.WriteLine(cuid);
+
+            Assert.Equal(cuid.Length, 25);
         }
 
         [Fact]
         public void CuidsAreShorterThanGuids()
         {
             Assert.True(
-                Guid.NewGuid().ToString().Replace("-", string.Empty).Length > NCuid.Cuid.Generate().Length
+                Guid.NewGuid().ToString().Replace("-", string.Empty).Length > Cuid.Generate().Length
             );
         }
 
@@ -30,7 +35,7 @@ namespace NCuid.Tests
             sw.Start();
             for (double i = 0; i < toGen; i++)
             {
-                NCuid.Cuid.Generate();
+                Cuid.Generate();
             }
             sw.Stop();
 
@@ -48,6 +53,16 @@ namespace NCuid.Tests
             var elapsedGuid = sw.ElapsedTicks;
 
             Assert.False(elapsedGuid > elapsedCuid);
+        }
+
+        [Fact]
+        public void SlugTest()
+        {
+            var slug = Cuid.Slug();
+
+            Debug.WriteLine(slug);
+
+            Assert.Equal(slug.Length, 8);
         }
     }
 }
