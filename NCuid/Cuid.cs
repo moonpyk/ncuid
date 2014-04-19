@@ -15,6 +15,20 @@ namespace NCuid
         private static ulong _globalCounter;
         private static string _hostname;
 
+        private static ulong SafeCounter
+        {
+            get
+            {
+                _globalCounter = (_globalCounter < DiscreteValues) 
+                    ? _globalCounter 
+                    : 0;
+
+                _globalCounter++;
+
+                return _globalCounter - 1;
+            }
+        }
+
         private static string Hostname
         {
             get
@@ -36,7 +50,7 @@ namespace NCuid
                 return _hostname;
             }
         }
-        
+
         public static string Generate()
         {
             var ts          = DateTime.Now.ToUnixMilliTime().ToBase36();
@@ -44,13 +58,7 @@ namespace NCuid
             var rnd         = RandomBlock(gen) + RandomBlock(gen);
             var fingerprint = FingerPrint();
 
-            _globalCounter = (_globalCounter < DiscreteValues) 
-                ? _globalCounter 
-                : 0;
-
-            var counter = _globalCounter.ToBase36().Pad(BlockSize);
-
-            _globalCounter++;
+            var counter = SafeCounter.ToBase36().Pad(BlockSize);
 
             return ("c" + ts + counter + fingerprint + rnd).ToLowerInvariant();
         }
@@ -58,11 +66,9 @@ namespace NCuid
         public static string Slug()
         {
             var dt      = DateTime.Now.ToUnixMilliTime().ToBase36();
-            var counter = _globalCounter.ToBase36().Slice(-1);
+            var counter = SafeCounter.ToBase36().Slice(-1);
             var print   = FingerPrint().Slice(0, 1) + FingerPrint().Slice(-1);
             var rnd     = RandomBlock(new Random()).Slice(-1);
-
-            _globalCounter++;
 
             return (dt.Slice(2, 4) + dt.Slice(-2) + counter + print + rnd).ToLowerInvariant();
         }
