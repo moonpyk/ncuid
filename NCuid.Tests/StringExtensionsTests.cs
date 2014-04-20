@@ -25,14 +25,5 @@ namespace NCuid.Tests
 
             Assert.Equal("", "".Slice(-6));
         }
-
-        [Fact]
-        public void ReverseTest()
-        {
-            Assert.Equal("CBA", "ABC".Reverse());
-
-            var sb = new StringBuilder("ABC");
-            Assert.Equal("CBA", sb.Reverse().ToString());
-        }
     }
 }

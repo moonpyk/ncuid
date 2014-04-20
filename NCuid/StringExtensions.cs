@@ -30,25 +30,6 @@ namespace NCuid
             return source.Substring(start, end - start); // Return Substring of length
         }
 
-        public static string Reverse(this string s)
-        {
-            var charArray = s.ToCharArray();
-            Array.Reverse(charArray);
-            return new string(charArray);
-        }
-
-        public static StringBuilder Reverse(this StringBuilder sb)
-        {
-            for (var i = 0; i < sb.Length / 2; i++)
-            {
-                var tmp = sb[i];
-                sb[i] = sb[sb.Length - i - 1];
-                sb[sb.Length - i - 1] = tmp;
-            }
-
-            return sb;
-        }
-
         public static string Pad(this string s, int size)
         {
             var padded = s;

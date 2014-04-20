@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace NCuid
@@ -7,6 +8,17 @@ namespace NCuid
     {
         private const string Clist = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         private static readonly char[] Clistarr = Clist.ToCharArray();
+
+        public static string Encode(ulong inputNumber)
+        {
+            var result = new Stack<char>();
+            while (inputNumber != 0)
+            {
+                result.Push(Clistarr[inputNumber % 36]);
+                inputNumber /= 36;
+            }
+            return new string(result.ToArray());
+        }
 
         public static long Decode(string inputString)
         {
@@ -45,18 +57,6 @@ namespace NCuid
         public static string Encode(long inputNumber)
         {
             return Encode((ulong)inputNumber);
-        }
-
-        public static string Encode(ulong inputNumber)
-        {
-            var sb = new StringBuilder();
-            do
-            {
-                sb.Append(Clistarr[inputNumber % (ulong)Clist.Length]);
-                inputNumber /= (ulong)Clist.Length;
-            } while (inputNumber != 0);
-            
-            return sb.Reverse().ToString();
         }
     }
 }
