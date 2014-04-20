@@ -10,11 +10,27 @@ namespace NCuid.Tests
         [Fact]
         public void GenerateTest()
         {
-            var cuid = Cuid.Generate();
+            var cuid       = Cuid.Generate();
+            var cuidSecure = Cuid.Generate(RandomSource.Secure);
 
             Debug.WriteLine(cuid);
+            Debug.WriteLine(cuidSecure);
 
             Assert.Equal(25, cuid.Length);
+            Assert.Equal(25, cuidSecure.Length);
+        }
+
+        [Fact]
+        public void SlugTest()
+        {
+            var slug       = Cuid.Slug();
+            var slugSecure = Cuid.Slug(RandomSource.Secure);
+
+            Debug.WriteLine(slug);
+            Debug.WriteLine(slugSecure);
+
+            Assert.InRange(slug.Length, 7, 10);
+            Assert.InRange(slugSecure.Length, 7, 10);
         }
 
         [Fact]
@@ -28,7 +44,17 @@ namespace NCuid.Tests
                 Assert.False(l.Contains(gen));
 
                 Assert.True(l.Add(gen));
-            }            
+            }        
+    
+            l.Clear();
+
+            for (var i = 0; i <= 1200000; i++)
+            {
+                var gen = Cuid.Generate(RandomSource.Secure);
+                Assert.False(l.Contains(gen));
+
+                Assert.True(l.Add(gen));
+            } 
         }
 
         [Fact]
@@ -39,6 +65,16 @@ namespace NCuid.Tests
             for (var i = 0; i <= 1200000; i++)
             {
                 var gen = Cuid.Slug();
+                Assert.False(l.Contains(gen));
+
+                Assert.True(l.Add(gen));
+            }
+
+            l.Clear();
+
+            for (var i = 0; i <= 1200000; i++)
+            {
+                var gen = Cuid.Slug(RandomSource.Secure);
                 Assert.False(l.Contains(gen));
 
                 Assert.True(l.Add(gen));
@@ -81,16 +117,6 @@ namespace NCuid.Tests
             var elapsedGuid = sw.ElapsedTicks;
 
             Assert.False(elapsedGuid > elapsedCuid);
-        }
-
-        [Fact]
-        public void SlugTest()
-        {
-            var slug = Cuid.Slug();
-
-            Debug.WriteLine(slug);
-
-            Assert.InRange(slug.Length, 7, 10);
         }
     }
 }

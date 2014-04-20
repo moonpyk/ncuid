@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Security;
+using System.Security.Cryptography;
 
 namespace NCuid
 {
@@ -57,13 +58,35 @@ namespace NCuid
         /// <summary>
         /// Returns a short sequential random string with some collision-busting measures
         /// </summary>
+        /// <param name="rs">Type of the random source to use, if not specied <see cref="RandomSource.Simple"/> is used.</param>
         /// <returns>A 25 characters string</returns>
-        public static string Generate()
+        public static string Generate(RandomSource rs = RandomSource.Simple)
         {
             var ts          = DateTime.Now.ToUnixMilliTime().ToBase36();
-            var gen         = new Random();
-            var rnd         = RandomBlock(gen) + RandomBlock(gen);
             var fingerprint = FingerPrint();
+
+            string rnd;
+
+            switch (rs)
+            {
+                case RandomSource.Secure:
+                    {
+                        using (var gen = new RNGCryptoServiceProvider())
+                        {
+                            rnd = SecureRandomBlock(gen) + SecureRandomBlock(gen);
+                        }
+                    }
+                    break;
+                case RandomSource.Simple:
+                    {
+                        var gen = new Random();
+                        rnd = SimpleRandomBlock(gen) + SimpleRandomBlock(gen);
+                    }
+                    break;
+
+                default:
+                    throw new IndexOutOfRangeException("Invalid RandomSource specified");
+            }
 
             var counter = SafeCounter.ToBase36().Pad(BlockSize);
 
@@ -73,13 +96,31 @@ namespace NCuid
         /// <summary>
         /// Return a short (slugged) version of a CUID, likely to be less sequencial
         /// </summary>
+        /// <param name="rs">Type of the random source to use, if not specied <see cref="RandomSource.Simple"/> is used.</param>
         /// <returns>A 7 to 10 characters string (depending of the internal counter value)</returns>
-        public static string Slug()
+        public static string Slug(RandomSource rs = RandomSource.Simple)
         {
             var print   = FingerPrint().Slice(0, 1) + FingerPrint().Slice(-1);
-            var rnd     = RandomBlock(new Random()).Slice(-2);
             var counter = SafeCounter.ToBase36().Slice(-4);
             var dt      = DateTime.Now.ToUnixMilliTime().ToBase36();
+
+            string rnd;
+
+            switch (rs)
+            {
+                case RandomSource.Secure:
+                    using (var gen = new RNGCryptoServiceProvider())
+                    {
+                        rnd = SecureRandomBlock(gen).Slice(-2);
+                    }
+                    break;
+                case RandomSource.Simple:
+                    rnd = SimpleRandomBlock(new Random()).Slice(-2);
+                    break;
+
+                default:
+                    throw new IndexOutOfRangeException("Invalid RandomSource specified");
+            }
 
             return (dt.Slice(-2) + counter + print + rnd).ToLowerInvariant();
         }
@@ -103,13 +144,24 @@ namespace NCuid
             return pid + hostId;
         }
 
-        private static string RandomBlock(Random rnd)
+        private static string SimpleRandomBlock(Random rnd)
         {
             var number = (long)(rnd.NextDouble() * DiscreteValues);
 
             var r = number.ToBase36().Pad(BlockSize);
 
             return r;
+        }
+
+        private static string SecureRandomBlock(RandomNumberGenerator gen)
+        {
+            var data = new byte[8];
+            gen.GetNonZeroBytes(data);
+
+            var baseNum =  ((double)BitConverter.ToUInt64(data, 0) / ulong.MaxValue);
+            var number = (long)(baseNum * DiscreteValues);
+
+            return number.ToBase36().Pad(BlockSize);
         }
     }
 }
