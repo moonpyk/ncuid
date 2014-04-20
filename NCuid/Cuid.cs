@@ -65,12 +65,12 @@ namespace NCuid
 
         public static string Slug()
         {
-            var dt      = DateTime.Now.ToUnixMilliTime().ToBase36();
-            var counter = SafeCounter.ToBase36().Slice(-1);
             var print   = FingerPrint().Slice(0, 1) + FingerPrint().Slice(-1);
-            var rnd     = RandomBlock(new Random()).Slice(-1);
+            var rnd     = RandomBlock(new Random()).Slice(-2);
+            var counter = SafeCounter.ToBase36().Slice(-4);
+            var dt      = DateTime.Now.ToUnixMilliTime().ToBase36();
 
-            return (dt.Slice(2, 4) + dt.Slice(-2) + counter + print + rnd).ToLowerInvariant();
+            return (dt.Slice(-2) + counter + print + rnd).ToLowerInvariant();
         }
 
         public static string FingerPrint()

@@ -16,6 +16,8 @@ namespace NCuid.Tests
             Assert.Equal("1", s.Slice(1, 2));
             Assert.Equal("89_", s.Slice(8, 11));
 
+            Assert.Equal("dqsd", "qsqdsqdqsdqsd".Slice(-4));
+            
             Assert.Equal("0", "0".Slice(-1));
             Assert.Equal("0", "0".Slice(-4));
             Assert.Equal("0", "0".Slice(-6));

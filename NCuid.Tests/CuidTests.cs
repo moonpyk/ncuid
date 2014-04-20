@@ -14,22 +14,35 @@ namespace NCuid.Tests
 
             Debug.WriteLine(cuid);
 
-            Assert.Equal(cuid.Length, 25);
+            Assert.Equal(25, cuid.Length);
         }
 
         [Fact]
         public void NoReasonableCollision()
         {
-            const int capa = 60000;
-            var l = new List<string>(capa);
+            var l = new HashSet<string>();
 
-            for (var i = 0; i <= capa; i++)
+            for (var i = 0; i <= 1200000; i++)
             {
                 var gen = Cuid.Generate();
                 Assert.False(l.Contains(gen));
 
-                l.Add(gen);
+                Assert.True(l.Add(gen));
             }            
+        }
+
+        [Fact]
+        public void NoSlugReasonableCollisionTest()
+        {
+            var l = new HashSet<string>();
+
+            for (var i = 0; i <= 1200000; i++)
+            {
+                var gen = Cuid.Slug();
+                Assert.False(l.Contains(gen));
+
+                Assert.True(l.Add(gen));
+            }
         }
 
         [Fact]
@@ -77,7 +90,7 @@ namespace NCuid.Tests
 
             Debug.WriteLine(slug);
 
-            Assert.Equal(slug.Length, 8);
+            Assert.InRange(slug.Length, 7, 10);
         }
     }
 }
