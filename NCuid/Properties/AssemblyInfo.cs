@@ -5,14 +5,14 @@ using System.Runtime.InteropServices;
 // Les informations générales relatives à un assembly dépendent de 
 // l'ensemble d'attributs suivant. Changez les valeurs de ces attributs pour modifier les informations
 // associées à un assembly.
-[assembly: AssemblyTitle("Cuid.NET")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Cuid.NET")]
-[assembly: AssemblyCopyright("Copyright ©  2014")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+[assembly: AssemblyTitle("Moonpyk.NCuid")]
+// [assembly: AssemblyDescription("")]
+// [assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("Moonpyk")]
+[assembly: AssemblyProduct("Moonpyk.NCuid")]
+[assembly: AssemblyCopyright("Copyright 2014 © Clément Bourgeois")]
+// [assembly: AssemblyTrademark("")]
+// [assembly: AssemblyCulture("")]
 
 // L'affectation de la valeur false à ComVisible rend les types invisibles dans cet assembly 
 // aux composants COM.  Si vous devez accéder à un type dans cet assembly à partir de 
@@ -36,4 +36,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly: AssemblyInformationalVersion("")]
 
-[assembly: InternalsVisibleTo("NCuid.Tests")]
+#if DEBUG
+  [assembly: InternalsVisibleTo("NCuid.Tests")]
+#endif
