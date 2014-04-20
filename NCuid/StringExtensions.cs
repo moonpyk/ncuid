@@ -51,10 +51,14 @@ namespace NCuid
 
         public static string Pad(this string s, int size)
         {
-            var padded = s.PadLeft(size, '0');
+            var padded = s;
+
+            if (size > padded.Length)
+            {
+                padded = padded.PadLeft(size, '0');
+            }
+            
             return padded.Substring(padded.Length - size);
         }
-
-
     }
 }

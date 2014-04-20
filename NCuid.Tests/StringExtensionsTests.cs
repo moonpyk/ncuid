@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using System.Text;
+using Xunit;
 
 namespace NCuid.Tests
 {
@@ -17,7 +18,7 @@ namespace NCuid.Tests
             Assert.Equal("89_", s.Slice(8, 11));
 
             Assert.Equal("dqsd", "qsqdsqdqsdqsd".Slice(-4));
-            
+
             Assert.Equal("0", "0".Slice(-1));
             Assert.Equal("0", "0".Slice(-4));
             Assert.Equal("0", "0".Slice(-6));
@@ -29,6 +30,9 @@ namespace NCuid.Tests
         public void ReverseTest()
         {
             Assert.Equal("CBA", "ABC".Reverse());
+
+            var sb = new StringBuilder("ABC");
+            Assert.Equal("CBA", sb.Reverse().ToString());
         }
     }
 }
