@@ -56,7 +56,7 @@ namespace NCuid
         }
 
         /// <summary>
-        /// Returns a short sequential random string with some collision-busting measures
+        /// Returns a short sequential random string with some collision-busting measures (a CUID)
         /// </summary>
         /// <param name="rs">Type of the random source to use, if not specied <see cref="RandomSource.Simple"/> is used.</param>
         /// <returns>A 25 characters string</returns>
