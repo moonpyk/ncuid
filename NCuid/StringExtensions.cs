@@ -1,7 +1,4 @@
-﻿using System;
-using System.Text;
-
-namespace NCuid
+﻿namespace NCuid
 {
     internal static class StringExtensions
     {

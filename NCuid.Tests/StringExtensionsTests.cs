@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Xunit;
+﻿using Xunit;
 
 namespace NCuid.Tests
 {
