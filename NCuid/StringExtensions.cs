@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace NCuid
 {
@@ -36,10 +37,24 @@ namespace NCuid
             return new string(charArray);
         }
 
+        public static StringBuilder Reverse(this StringBuilder sb)
+        {
+            for (var i = 0; i < sb.Length / 2; i++)
+            {
+                var tmp = sb[i];
+                sb[i] = sb[sb.Length - i - 1];
+                sb[sb.Length - i - 1] = tmp;
+            }
+
+            return sb;
+        }
+
         public static string Pad(this string s, int size)
         {
             var padded = s.PadLeft(size, '0');
             return padded.Substring(padded.Length - size);
         }
+
+
     }
 }

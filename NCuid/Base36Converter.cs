@@ -55,8 +55,8 @@ namespace NCuid
                 sb.Append(Clistarr[inputNumber % (ulong)Clist.Length]);
                 inputNumber /= (ulong)Clist.Length;
             } while (inputNumber != 0);
-
-            return sb.ToString().Reverse();
+            
+            return sb.Reverse().ToString();
         }
     }
 }
