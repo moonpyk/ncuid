@@ -6,6 +6,9 @@ using System.Security;
 
 namespace NCuid
 {
+    /// <summary>
+    /// Utility class to generate CUIDs see https://github.com/dilvie/cuid for complete manifesto
+    /// </summary>
     public static class Cuid
     {
         private const int BlockSize                  = 4;
@@ -42,7 +45,7 @@ namespace NCuid
                 {
                     _hostname = Environment.MachineName;
                 }
-                catch (SecurityException) // Fuck it
+                catch (SecurityException) // Screw it
                 {
                     _hostname = new Random().Next().ToString(CultureInfo.InvariantCulture);
                 }
@@ -51,6 +54,10 @@ namespace NCuid
             }
         }
 
+        /// <summary>
+        /// Returns a short sequential random string with some collision-busting measures
+        /// </summary>
+        /// <returns>A 25 characters string</returns>
         public static string Generate()
         {
             var ts          = DateTime.Now.ToUnixMilliTime().ToBase36();
@@ -63,6 +70,10 @@ namespace NCuid
             return ("c" + ts + counter + fingerprint + rnd).ToLowerInvariant();
         }
 
+        /// <summary>
+        /// Return a short (slugged) version of a CUID, likely to be less sequencial
+        /// </summary>
+        /// <returns>A 7 to 10 characters string (depending of the internal counter value)</returns>
         public static string Slug()
         {
             var print   = FingerPrint().Slice(0, 1) + FingerPrint().Slice(-1);
@@ -73,6 +84,12 @@ namespace NCuid
             return (dt.Slice(-2) + counter + print + rnd).ToLowerInvariant();
         }
 
+        /// <summary>
+        /// Generates a host fingerprint, using when possible the machine name and the current process pid.
+        /// If access to the machine name is refused by the framework, a random number based machine name is generated once,
+        /// and kept for further calls.
+        /// </summary>
+        /// <returns>A 4 character string</returns>
         public static string FingerPrint()
         {
             const int padding = 2;
