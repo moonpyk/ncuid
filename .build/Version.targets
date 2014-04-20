@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <AssemblyVersion>1.0.0.*</AssemblyVersion>
+    <MSBuildCommunityTasksPath>.</MSBuildCommunityTasksPath>
+  </PropertyGroup>
+  <Import Project="MSBuild.Community.Tasks.targets" />
+  <PropertyGroup>
+    <BuildDependsOn>
+      GenerateAssemblyInfo;
+      $(BuildDependsOn)
+    </BuildDependsOn>
+  </PropertyGroup>
+
+  <Target Name="ExtractRevision">
+    <GitVersion LocalPath="..">
+      <Output TaskParameter="CommitHash" PropertyName="Revision" />
+    </GitVersion>
+    <Message Text="Version : $(Revision)" />
+  </Target>
+
+  <Target Name="GenerateAssemblyInfo"
+          DependsOnTargets="ExtractRevision">
+    <PropertyGroup Condition="'$(Revision)' == ''">
+      <Revision>0000000</Revision>
+    </PropertyGroup>
+    <CreateProperty Value="$(MSBuildProjectDirectory)\..\..">
+      <Output TaskParameter="Value" PropertyName="SolutionDirectory"/>
+    </CreateProperty>
+    <CreateProperty Value="$(Revision)">
+      <Output TaskParameter="Value" PropertyName="AssemblyVersionCommitHash"/>
+    </CreateProperty>
+
+    <AssemblyInfo CodeLanguage="CS"
+              OutputFile="$(SolutionDirectory)\NCuid\NCuid\Properties\AssemblyInfo.Generated.cs"
+              AssemblyVersion="$(AssemblyVersion)"
+              AssemblyInformationalVersion="$(AssemblyVersionCommitHash)" />
+  </Target>
+</Project>
