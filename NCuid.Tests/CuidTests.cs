@@ -18,6 +18,8 @@ namespace NCuid.Tests
 
             Assert.Equal(25, cuid.Length);
             Assert.Equal(25, cuidSecure.Length);
+
+            Assert.Throws<IndexOutOfRangeException>(() => Cuid.Generate((RandomSource) 3));
         }
 
         [Fact]
@@ -31,6 +33,8 @@ namespace NCuid.Tests
 
             Assert.InRange(slug.Length, 7, 10);
             Assert.InRange(slugSecure.Length, 7, 10);
+
+            Assert.Throws<IndexOutOfRangeException>(() => Cuid.Slug((RandomSource)3));
         }
 
         [Fact]

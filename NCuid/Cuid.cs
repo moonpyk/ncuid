@@ -18,21 +18,7 @@ namespace NCuid
 
         private static ulong _globalCounter;
         private static string _hostname;
-
-        private static ulong SafeCounter
-        {
-            get
-            {
-                _globalCounter = (_globalCounter < DiscreteValues) 
-                    ? _globalCounter 
-                    : 0;
-
-                _globalCounter++;
-
-                return _globalCounter - 1;
-            }
-        }
-
+        
         private static string Hostname
         {
             get
@@ -88,7 +74,7 @@ namespace NCuid
                     throw new IndexOutOfRangeException("Invalid RandomSource specified");
             }
 
-            var counter = SafeCounter.ToBase36().Pad(BlockSize);
+            var counter = SafeCounter().ToBase36().Pad(BlockSize);
 
             return ("c" + ts + counter + fingerprint + rnd).ToLowerInvariant();
         }
@@ -101,7 +87,7 @@ namespace NCuid
         public static string Slug(RandomSource rs = RandomSource.Simple)
         {
             var print   = FingerPrint().Slice(0, 1) + FingerPrint().Slice(-1);
-            var counter = SafeCounter.ToBase36().Slice(-4);
+            var counter = SafeCounter().ToBase36().Slice(-4);
             var dt      = DateTime.Now.ToUnixMilliTime().ToBase36();
 
             string rnd;
@@ -142,6 +128,17 @@ namespace NCuid
 
             var hostId = Base36Converter.ToBase36(inputNumber).Pad(padding);
             return pid + hostId;
+        }
+
+        private static ulong SafeCounter()
+        {
+            _globalCounter = (_globalCounter < DiscreteValues)
+                ? _globalCounter
+                : 0;
+            
+            _globalCounter++;
+
+            return _globalCounter - 1;
         }
 
         private static string SimpleRandomBlock(Random rnd)
