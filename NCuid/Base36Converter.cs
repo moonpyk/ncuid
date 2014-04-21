@@ -10,18 +10,19 @@ namespace NCuid
 
         public static string Encode(ulong inputNumber)
         {
-            var result = new Stack<char>();
-            
             if (inputNumber == 0)
             {
                 return "0";
             }
+
+            var result = new Stack<char>();
 
             while (inputNumber != 0)
             {
                 result.Push(Clistarr[inputNumber % 36]);
                 inputNumber /= 36;
             }
+            
             return new string(result.ToArray());
         }
 
