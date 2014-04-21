@@ -58,7 +58,7 @@ namespace NCuid
         /// <summary>
         /// Returns a short sequential random string with some collision-busting measures (a CUID)
         /// </summary>
-        /// <param name="rs">Type of the random source to use, if not specied <see cref="RandomSource.Simple"/> is used.</param>
+        /// <param name="rs">Type of the random source to use, if not specified <see cref="RandomSource.Simple"/> is used.</param>
         /// <returns>A 25 characters string</returns>
         public static string Generate(RandomSource rs = RandomSource.Simple)
         {
@@ -94,9 +94,9 @@ namespace NCuid
         }
 
         /// <summary>
-        /// Return a short (slugged) version of a CUID, likely to be less sequencial
+        /// Return a short (slugged) version of a CUID, likely to be less sequential
         /// </summary>
-        /// <param name="rs">Type of the random source to use, if not specied <see cref="RandomSource.Simple"/> is used.</param>
+        /// <param name="rs">Type of the random source to use, if not specified <see cref="RandomSource.Simple"/> is used.</param>
         /// <returns>A 7 to 10 characters string (depending of the internal counter value)</returns>
         public static string Slug(RandomSource rs = RandomSource.Simple)
         {
