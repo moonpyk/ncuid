@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>NCuid</id>
+        <version>1.0.0</version>
+        <authors>Clément Bourgeois</authors>
+        <owners>Clément Bourgeois</owners>
+        <licenseUrl>https://raw.githubusercontent.com/moonpyk/ncuid/master/LICENSE</licenseUrl>
+        <projectUrl>https://github.com/moonpyk/ncuid</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Collision-resistant ids optimized for horizontal scaling and sequential lookup performance</description>
+        <releaseNotes />
+        <copyright />
+        <tags>cuid</tags>
+    </metadata>
+</package>
