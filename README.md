@@ -2,3 +2,7 @@ ncuid [![Build status](https://ci.appveyor.com/api/projects/status/s1e5w82tc8k6d
 =====
 
 Collision-resistant ids for .NET (port of https://github.com/dilvie/cuid)
+
+## Nuget availability
+
+    PM> Install-Package NCuid
