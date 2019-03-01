@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 
 namespace NCuid
 {
@@ -23,26 +24,28 @@ namespace NCuid
 
         private class SimpleRandomFragmentProvider : RandomFragmentProvider
         {
-            private readonly Random _randomGenerator = new Random(DateTime.UtcNow.Millisecond);
+            private static readonly ThreadLocal<Random> RandomGenerator = new ThreadLocal<Random>();
 
             public override string GetBlock(int repeatCount)
             {
                 var sb = new StringBuilder();
+
                 for (var index = 0; index < repeatCount; ++index)
                 {
-                    sb.Append(SimpleRandomBlock(_randomGenerator));
+                    sb.Append(SimpleRandomBlock());
                 }
+
                 return sb.ToString();
             }
 
             public override string GetFragment(int sliceLength)
             {
-                return SimpleRandomBlock(_randomGenerator).Slice(sliceLength);
+                return SimpleRandomBlock().Slice(sliceLength);
             }
 
-            private static string SimpleRandomBlock(Random rnd)
+            private static string SimpleRandomBlock()
             {
-                var number = (long)(rnd.NextDouble() * DiscreteValues);
+                var number = (long)(RandomGenerator.Value.NextDouble() * DiscreteValues);
 
                 var r = number.ToBase36().Pad(BlockSize);
 
@@ -57,10 +60,12 @@ namespace NCuid
                 using (var gen = new RNGCryptoServiceProvider())
                 {
                     var sb = new StringBuilder();
-                    for (int index = 0; index < repeatCount; ++index)
+
+                    for (var index = 0; index < repeatCount; ++index)
                     {
                         sb.Append(SecureRandomBlock(gen));
                     }
+
                     return sb.ToString();
                 }
             }
