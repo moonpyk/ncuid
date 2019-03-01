@@ -24,7 +24,17 @@ namespace NCuid
 
         private class SimpleRandomFragmentProvider : RandomFragmentProvider
         {
-            private static readonly ThreadLocal<Random> RandomGenerator = new ThreadLocal<Random>();
+            private static readonly ThreadLocal<Random> RandomGenerator =
+                new ThreadLocal<Random>(
+                    () =>
+                    {
+                        using (var rng = new RNGCryptoServiceProvider())
+                        {
+                            var block = new byte[4];
+                            rng.GetNonZeroBytes(block);
+                            return new Random(BitConverter.ToInt32(block, 0));
+                        }
+                    });
 
             public override string GetBlock(int repeatCount)
             {
