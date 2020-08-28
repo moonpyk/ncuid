@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Security;
 using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
 
 namespace NCuid
 {
@@ -12,13 +15,125 @@ namespace NCuid
     /// </summary>
     public static class Cuid
     {
-        private const int BlockSize                  = 4;
-        private const int Base                       = 36;
+        private abstract class RandomFragmentProvider
+        {
+            public abstract string GetBlock(int repeatCount);
+
+            public abstract string GetFragment(int sliceLength);
+        }
+
+        private class SimpleRandomFragmentProvider : RandomFragmentProvider
+        {
+            private static readonly ThreadLocal<Random> RandomGenerator =
+                new ThreadLocal<Random>(
+                    () =>
+                    {
+                        using (var rng = new RNGCryptoServiceProvider())
+                        {
+                            var block = new byte[4];
+                            rng.GetNonZeroBytes(block);
+                            return new Random(BitConverter.ToInt32(block, 0));
+                        }
+                    });
+
+            public override string GetBlock(int repeatCount)
+            {
+                var sb = new StringBuilder();
+
+                for (var index = 0; index < repeatCount; ++index)
+                {
+                    sb.Append(SimpleRandomBlock());
+                }
+
+                return sb.ToString();
+            }
+
+            public override string GetFragment(int sliceLength)
+            {
+                return SimpleRandomBlock().Slice(sliceLength);
+            }
+
+            private static string SimpleRandomBlock()
+            {
+                var number = (long)(RandomGenerator.Value.NextDouble() * DiscreteValues);
+
+                var r = number.ToBase36().Pad(BlockSize);
+
+                return r;
+            }
+        }
+
+        private class SecureRandomFragmentProvider : RandomFragmentProvider
+        {
+            public override string GetBlock(int repeatCount)
+            {
+                using (var gen = new RNGCryptoServiceProvider())
+                {
+                    var sb = new StringBuilder();
+
+                    for (var index = 0; index < repeatCount; ++index)
+                    {
+                        sb.Append(SecureRandomBlock(gen));
+                    }
+
+                    return sb.ToString();
+                }
+            }
+
+            public override string GetFragment(int sliceLength)
+            {
+                using (var gen = new RNGCryptoServiceProvider())
+                {
+                    return SecureRandomBlock(gen).Slice(sliceLength);
+                }
+            }
+
+            private static string SecureRandomBlock(RandomNumberGenerator gen)
+            {
+                var data = new byte[8];
+                gen.GetNonZeroBytes(data);
+
+                var baseNum = ((double)BitConverter.ToUInt64(data, 0) / ulong.MaxValue);
+                var number = (long)(baseNum * DiscreteValues);
+
+                return number.ToBase36().Pad(BlockSize);
+            }
+        }
+
+        private static class RandomFragmentProviderFactory
+        {
+            private static readonly SimpleRandomFragmentProvider SimpleRandomFragmentProvider = new SimpleRandomFragmentProvider();
+            private static readonly SecureRandomFragmentProvider SecureRandomFragmentProvider = new SecureRandomFragmentProvider();
+            private static readonly IDictionary<RandomSource, RandomFragmentProvider> ProviderLookup;
+
+            static RandomFragmentProviderFactory()
+            {
+                ProviderLookup =
+                    new Dictionary<RandomSource, RandomFragmentProvider>
+                    {
+                        { RandomSource.Simple, SimpleRandomFragmentProvider },
+                        { RandomSource.Secure, SecureRandomFragmentProvider }
+                    };
+            }
+
+            public static RandomFragmentProvider Get(RandomSource source)
+            {
+                if (!ProviderLookup.TryGetValue(source, out var provider))
+                {
+                    throw new IndexOutOfRangeException("Invalid RandomSource specified");
+                }
+
+                return provider;
+            }
+        }
+
+        private const int BlockSize = 4;
+        private const int Base = 36;
         private static readonly ulong DiscreteValues = (ulong)Math.Pow(Base, BlockSize);
 
         private static ulong _globalCounter;
         private static string _hostname;
-        
+
         private static string Hostname
         {
             get
@@ -48,31 +163,10 @@ namespace NCuid
         /// <returns>A 25 characters string</returns>
         public static string Generate(RandomSource rs = RandomSource.Simple)
         {
-            var ts          = DateTime.Now.ToUnixMilliTime().ToBase36();
+            var ts = DateTime.UtcNow.ToUnixMilliTime().ToBase36();
             var fingerprint = FingerPrint();
 
-            string rnd;
-
-            switch (rs)
-            {
-                case RandomSource.Secure:
-                    {
-                        using (var gen = new RNGCryptoServiceProvider())
-                        {
-                            rnd = SecureRandomBlock(gen) + SecureRandomBlock(gen);
-                        }
-                    }
-                    break;
-                case RandomSource.Simple:
-                    {
-                        var gen = new Random();
-                        rnd = SimpleRandomBlock(gen) + SimpleRandomBlock(gen);
-                    }
-                    break;
-
-                default:
-                    throw new IndexOutOfRangeException("Invalid RandomSource specified");
-            }
+            var rnd = RandomFragmentProviderFactory.Get(rs).GetBlock(2);
 
             var counter = SafeCounter().ToBase36().Pad(BlockSize);
 
@@ -86,27 +180,11 @@ namespace NCuid
         /// <returns>A 7 to 10 characters string (depending of the internal counter value)</returns>
         public static string Slug(RandomSource rs = RandomSource.Simple)
         {
-            var print   = FingerPrint().Slice(0, 1) + FingerPrint().Slice(-1);
+            var print = FingerPrint().Slice(0, 1) + FingerPrint().Slice(-1);
             var counter = SafeCounter().ToBase36().Slice(-4);
-            var dt      = DateTime.Now.ToUnixMilliTime().ToBase36();
+            var dt = DateTime.UtcNow.ToUnixMilliTime().ToBase36();
 
-            string rnd;
-
-            switch (rs)
-            {
-                case RandomSource.Secure:
-                    using (var gen = new RNGCryptoServiceProvider())
-                    {
-                        rnd = SecureRandomBlock(gen).Slice(-2);
-                    }
-                    break;
-                case RandomSource.Simple:
-                    rnd = SimpleRandomBlock(new Random()).Slice(-2);
-                    break;
-
-                default:
-                    throw new IndexOutOfRangeException("Invalid RandomSource specified");
-            }
+            var rnd = RandomFragmentProviderFactory.Get(rs).GetFragment(-2);
 
             return (dt.Slice(-2) + counter + print + rnd).ToLowerInvariant();
         }
@@ -121,9 +199,9 @@ namespace NCuid
         {
             const int padding = 2;
 
-            var pid         = Base36Converter.ToBase36((Process.GetCurrentProcess().Id)).Pad(padding);
-            var hostname    = Hostname;
-            var length      = hostname.Length;
+            var pid = Base36Converter.ToBase36((Process.GetCurrentProcess().Id)).Pad(padding);
+            var hostname = Hostname;
+            var length = hostname.Length;
             var inputNumber = hostname.Split().Aggregate(length + 36, (prev, c) => prev + c[0]);
 
             var hostId = Base36Converter.ToBase36(inputNumber).Pad(padding);
@@ -135,30 +213,10 @@ namespace NCuid
             _globalCounter = (_globalCounter < DiscreteValues)
                 ? _globalCounter
                 : 0;
-            
+
             _globalCounter++;
 
             return _globalCounter - 1;
-        }
-
-        private static string SimpleRandomBlock(Random rnd)
-        {
-            var number = (long)(rnd.NextDouble() * DiscreteValues);
-
-            var r = number.ToBase36().Pad(BlockSize);
-
-            return r;
-        }
-
-        private static string SecureRandomBlock(RandomNumberGenerator gen)
-        {
-            var data = new byte[8];
-            gen.GetNonZeroBytes(data);
-
-            var baseNum =  ((double)BitConverter.ToUInt64(data, 0) / ulong.MaxValue);
-            var number = (long)(baseNum * DiscreteValues);
-
-            return number.ToBase36().Pad(BlockSize);
         }
     }
 }
