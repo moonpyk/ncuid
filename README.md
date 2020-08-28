@@ -6,3 +6,19 @@ Collision-resistant ids for .NET (port of https://github.com/ericelliott/cuid)
 ## Nuget availability
 
     PM> Install-Package NCuid
+
+## Example
+
+    using System;
+    using NCuid;
+
+    namespace CUIDTest
+    {
+        class Program
+        {
+            static void Main(string[] args)
+            {
+                Console.WriteLine("Hello World! This is a Cuid -> " + Cuid.Generate() + " <-" );
+            }
+        }
+    }
